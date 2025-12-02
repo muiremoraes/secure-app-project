@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-
+<html lang="en">
 <head>
     <title>Notes App</title>
 </head>
@@ -12,10 +12,10 @@
     <a href="/logout">logout</a>
     <hr>
 
-    <h3>Add here:</h3>
+    <h2>Add here:</h2>
 
     <form method="post" action="/add_notes">
-        <h5>Note:</h5> <textarea name="note_info"></textarea> <br>
+        <h3><label>Note:</label></h3> <textarea name="note_info" id="note_info"></textarea> <br>
         <br>
         <button type="submit">Submit</button>
     </form>
@@ -23,7 +23,7 @@
     <br>
     <hr>
 
-    <h3>Notes:</h3>
+    <h4>Notes:</h4>
     <ul>
     {% for note in notes %}
     <li>{{ note.note_info|safe }} <a href="/delete/{{ note.id }}">Delete</a></li>

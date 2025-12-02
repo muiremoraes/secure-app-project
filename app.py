@@ -71,7 +71,7 @@ def login():
             session["user_id"] = user["id"]
             return redirect("/notes")
         else:
-            return "login failed"
+            return "login failed",401
     
     return render_template("login.html")
 

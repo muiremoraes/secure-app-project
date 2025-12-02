@@ -17,10 +17,21 @@ def test_register(client):
     assert res.status_code == 302
 
 
+def test_register_with_same_name(client):
+    client.post("/register", data={"username":"test", "password":"pass1234"})
+    res = client.post("/register", data={"username":"test", "password":"pass123"})
+    assert res.status_code == 302
+
 def test_login(client):
     client.post("/register", data={"username":"test", "password":"pass123"})
     res = client.post("/login", data={"username":"test", "password":"pass123"})
     assert res.status_code == 302
+
+
+def test_login_with_invlaid_creds(client):
+    client.post("/register", data={"username":"test", "password":"pass123"})
+    res = client.post("/login", data={"username":"idk", "password":"pass"})
+    assert res.status_code == 401
 
 
 def test_note(client):
@@ -29,3 +40,14 @@ def test_note(client):
     client.post("/add_notes", data={"note_info":"blah blah something"})
     res = client.get("/notes")
     assert res.status_code == 200
+
+def test_delete_note(client):
+    client.post("/register", data={"username":"test", "password":"pass123"})
+    client.post("/login", data={"username":"test", "password":"pass123"})
+    client.post("/add_notes", data={"note_info":"blah blah something"})
+    res = client.get("/delete/1")
+    assert res.status_code == 302
+
+
+# source ./venv/bin/activate
+#  PYTHONPATH=. pytest -v -k "test"
