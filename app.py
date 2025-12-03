@@ -7,8 +7,18 @@ import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-app.secret_key = "secret_key"
+app.secret_key = "secret_key_shsjkwdsdiwuerfiweufh3382923DSCJKSDCJeoiosdifj5443"
 csrf = CSRFProtect(app)
+
+@app.after_request
+def secure_headers(response):
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['Content-Security-Policy'] = "default-src 'self'"
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    return response
+
 
 class NameForm(FlaskForm):
     username = StringField("Username", validators=[DataRequired()])
@@ -50,8 +60,7 @@ def get_login_page():
 def register():
     form = NameForm()
     if request.method == "POST":
-        # username = request.form["username"]
-        # password = request.form["password"]
+        
 
         if form.validate_on_submit():
             username = form.username.data
@@ -87,9 +96,9 @@ def register():
 
             hash_pass = generate_password_hash(password)
 
-            #query=f"INSERT INTO users (username,password) VALUES ('{username}','{password}')" 
+            
             cur.execute("INSERT INTO users (username,password) VALUES (?,?)", (username,hash_pass))
-            #cur.execute(query)
+
             conn.commit()
             conn.close()
 
@@ -103,8 +112,7 @@ fake_pass = generate_password_hash("PasswordP1234")
 def login():
     form = NameForm()
     if request.method == "POST":
-        # username = request.form["username"]
-        # password = request.form["password"]
+        
 
         if form.validate_on_submit():
             username = form.username.data
@@ -113,9 +121,9 @@ def login():
             conn = get_db()
             cur = conn.cursor()
 
-            #query = f"SELECT * FROM users WHERE username='{username}' AND password='{password}'"
+            
             cur.execute("SELECT * FROM users WHERE username=(?)",(username,))
-            #cur.execute(query)
+
             user = cur.fetchone()
             conn.close()
 
@@ -153,13 +161,10 @@ def add_note():
     if form.validate_on_submit():
         note_txt = form.note_info.data
 
-    #note_txt = request.form["note_info"]
 
         conn = get_db()
         cur = conn.cursor()
 
-        # query = f"INSERT INTO notes (user_id, note_info) VALUES ({session['user_id']}, '{note_txt}')"
-        # cur.execute(query)
         cur.execute("INSERT INTO notes (user_id, note_info) VALUES (?,?)",(session["user_id"],note_txt))
         conn.commit()
         conn.close()
@@ -177,8 +182,6 @@ def view():
     conn = get_db()
     cur = conn.cursor()
 
-    # query =f"SELECT * FROM notes WHERE user_id={session['user_id']}"
-    # cur.execute(query)
     cur.execute("SELECT * FROM notes WHERE user_id=(?)",(session["user_id"],))
     notes = cur.fetchall()
     conn.close()
@@ -194,8 +197,6 @@ def delete(id):
     conn = get_db()
     cur = conn.cursor()
 
-    # query =f"DELETE FROM notes WHERE id={id}"
-    # cur.execute(query)
     cur.execute("DELETE FROM notes WHERE id=(?)",(id,))
     conn.commit()
     conn.close()
