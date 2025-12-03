@@ -14,11 +14,27 @@
     <h2>Register here:</h2>
 
     <form method="post">
-        <h3><label>Username:</label></h3> <input name="username" id="username"><br>
-        <h3><label>Password:</label></h3> <input name="password" type="password" id ="password"><br>
-        <br>
-        <button type="submit">Submit</button>
+        {{ form.hidden_tag() }}
+        <h3><label>Username:</label></h3> 
+         {{ form.username() }}
+        <h3><label>Password:</label></h3> 
+        {{ form.password() }}
+        <br><br>
+        {{ form.submit() }}
     </form>
+    
+    {% if error %}
+    <p>{{error}}</p>
+    {% endif %}
+
+    <br><br>
+    <hr>
+    <h4>Password Checklist</h4>
+    <ul><li>8 char Long</li></ul>
+    <ul><li>1 capital letter</li></ul>
+    <ul><li>1 lowercase letter</li></ul>
+    <ul><li>1 digit</li></ul>
+
 </body>
 
 </html>
