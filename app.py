@@ -6,6 +6,7 @@ from wtforms.validators import DataRequired
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf.csrf import CSRFError
+import logging
 
 app = Flask(__name__)
 app.secret_key = "secret_key_shsjkwdsdiwuerfiweufh3382923DSCJKSDCJeoiosdifj5443"
@@ -24,8 +25,10 @@ app.config.update(
     SESSION_COOKIE_SECURE=True,
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE='Lax',
-    PERMANENT_SESSION_LIFETIME=30
+    PERMANENT_SESSION_LIFETIME=600
 )
+
+logging.basicConfig(filename="info.log", level=logging.INFO, format= "%(asctime)s | %(message)s")
 
 
 class NameForm(FlaskForm):
@@ -115,6 +118,8 @@ def register():
 
             conn.commit()
             conn.close()
+            id = session.get("user_id")
+            logging.info(f"User registered: {username}")
 
             return redirect("/login")
         
@@ -152,8 +157,10 @@ def login():
                 session.clear()
                 session.permanent = True
                 session["user_id"] = user["id"]
+                logging.info(f"User logged in: {username}")
                 return redirect("/notes")
             else:
+                logging.info(f"User registeration failed: {username}")
                 return render_template("login.html", form=form, error="login failed")
     
     return render_template("login.html", form=form)
@@ -162,6 +169,8 @@ def login():
 
 @app.route("/logout", methods=["GET"])
 def logout():
+    id = session.get("user_id")
+    logging.info(f"User logged out id={id}")
     session.clear()
     return redirect("/login")
 
@@ -172,8 +181,6 @@ def add_note():
     if "user_id" not in session:
         return redirect("/login")
 
-    # if request.method == "POST" and "user_id" not in session:
-    #     return redirect("/login")
 
     form = NoteForm()
 
@@ -187,6 +194,8 @@ def add_note():
         cur.execute("INSERT INTO notes (user_id, note_info) VALUES (?,?)",(session["user_id"],note_txt))
         conn.commit()
         conn.close()
+        id = session.get("user_id")
+        logging.info(f"User added note, id={id}")
         return redirect("/notes")
 
     return render_template("notes.html",form=form)
@@ -219,6 +228,8 @@ def delete(id):
     cur.execute("DELETE FROM notes WHERE id=(?)",(id,))
     conn.commit()
     conn.close()
+    id = session.get("user_id")
+    logging.info(f"User deleted note, id={id}")
     return redirect("/notes")
 
 
