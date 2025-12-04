@@ -5,6 +5,7 @@ from wtforms import StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_wtf.csrf import CSRFError
 
 app = Flask(__name__)
 app.secret_key = "secret_key_shsjkwdsdiwuerfiweufh3382923DSCJKSDCJeoiosdifj5443"
@@ -18,6 +19,13 @@ def secure_headers(response):
     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
     response.headers['X-XSS-Protection'] = '1; mode=block'
     return response
+
+app.config.update( 
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+    PERMANENT_SESSION_LIFETIME=30
+)
 
 
 class NameForm(FlaskForm):
@@ -53,6 +61,12 @@ init_db()
 @app.route("/")
 def get_login_page():
     return render_template("index.html")
+
+
+@app.errorhandler(CSRFError)
+def handle_csrf_error(e):
+    form = NameForm()
+    return render_template("login.html", form=form, error="session expired")
 
 
 
@@ -135,6 +149,8 @@ def login():
             check = check_password_hash(hash_exist,password)
 
             if user and check:
+                session.clear()
+                session.permanent = True
                 session["user_id"] = user["id"]
                 return redirect("/notes")
             else:
@@ -155,6 +171,9 @@ def logout():
 def add_note():
     if "user_id" not in session:
         return redirect("/login")
+
+    # if request.method == "POST" and "user_id" not in session:
+    #     return redirect("/login")
 
     form = NoteForm()
 
