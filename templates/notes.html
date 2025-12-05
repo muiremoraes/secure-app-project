@@ -1,23 +1,23 @@
 
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"> 
 <head>
-    <title>Notes App</title>
+    <title>Notes App</title> <!--borwser title-->
 </head>
 
 <body>
     <h1>Notes App</h1>
 
-    <a href="/logout">logout</a>
+    <a href="/logout">logout</a> <!-- anchor tag to logout-->
     <hr>
 
     <h2>Add here:</h2>
 
-    <form method="post" action="/add_notes">
-        {{ form.hidden_tag() }}
+    <form method="post" action="/add_notes"> <!--form for adding a new note-->
+        {{ form.hidden_tag() }} <!--CSRF token-->
         <h3><label>Note:</label></h3> 
-        {{ form.note_info() }}
+        {{ form.note_info() }} <!--note info added here-->
         <br><br>
         {{ form.submit() }}
     </form>
@@ -27,8 +27,9 @@
 
     <h4>Notes:</h4>
     <ul>
-    {% for note in notes %}
-    <li>{{ note.note_info | e }} <a href="/delete/{{ note.id }}">Delete</a></li>
+    {% for note in notes %} <!--loop through all notes-->
+    <li>{{ note.note_info | e }} <a href="/delete/{{ note.id }}">Delete</a></li> 
+    <!--dsiplays note content escape flag and delete note link-->
     {% endfor %}
     </ul>
 

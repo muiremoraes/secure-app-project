@@ -12,7 +12,7 @@
     <h2>Login here:</h2>
 
     <form method="post">
-        {{ form.hidden_tag() }}
+        {{ form.hidden_tag() }} <!--CSRF token-->
         <h3><label>Username:</label></h3> 
          {{ form.username() }}
         <h3><label>Password:</label></h3> 
@@ -21,7 +21,7 @@
         {{ form.submit() }}
     </form>
 
-    {% if error %}
+    {% if error %} <!--error message displayed here if error-->
     <p>{{error}}</p>
     {% endif %}
 
