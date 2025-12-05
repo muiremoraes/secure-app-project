@@ -2,11 +2,12 @@
 from flask import Flask, request, redirect, session, render_template
 import sqlite3
 
+#intitalise db
 app = Flask(__name__)
-app.secret_key = "secret_key"
+app.secret_key = "secret_key" #basic secret key
 
 
-def init_db():
+def init_db(): #intialse db adn create table if they dont exist
     conn = sqlite3.connect("database.db")
     cur = conn.cursor()
 
@@ -19,13 +20,13 @@ def init_db():
     conn.close()
 
 
-def get_db():
+def get_db(): # connect to DB and return connectiion 
     conn = sqlite3.connect("database.db")
     conn.row_factory = sqlite3.Row 
     return conn
 
 
-init_db()
+init_db() #intialse db
     
 @app.route("/")
 def get_login_page():
@@ -35,14 +36,15 @@ def get_login_page():
 
 @app.route("/register", methods=["GET","POST"])
 def register():
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+    if request.method == "POST": #check request
+        username = request.form["username"] # get username from form 
+        password = request.form["password"] #get password for form
 
         conn = get_db()
         cur = conn.cursor()
 
-        query=f"INSERT INTO users (username,password) VALUES ('{username}','{password}')" 
+
+        query=f"INSERT INTO users (username,password) VALUES ('{username}','{password}')" #put username and password into users table
         cur.execute(query)
         conn.commit()
         conn.close()
@@ -53,7 +55,7 @@ def register():
     
 
 
-@app.route("/login", methods=["GET","POST"])
+@app.route("/login", methods=["GET","POST"]) # login to page
 def login():
     if request.method == "POST":
         username = request.form["username"]
@@ -62,13 +64,13 @@ def login():
         conn = get_db()
         cur = conn.cursor()
 
-        query = f"SELECT * FROM users WHERE username='{username}' AND password='{password}'"
+        query = f"SELECT * FROM users WHERE username='{username}' AND password='{password}'" # get user with same username and password
         cur.execute(query)
         user = cur.fetchone()
         conn.close()
 
         if user:
-            session["user_id"] = user["id"]
+            session["user_id"] = user["id"]  #store user id in session
             return redirect("/notes")
         else:
             return "login failed",401
@@ -79,14 +81,14 @@ def login():
 
 @app.route("/logout", methods=["GET"])
 def logout():
-    session.clear()
+    session.clear() # clear session and redirect to login
     return redirect("/login")
 
 
 
 @app.route("/add_notes", methods=["POST", "GET"])
 def add_note():
-    if "user_id" not in session:
+    if "user_id" not in session: #check user logged in
         return redirect("/login")
     
     if request.method == "POST":
@@ -95,7 +97,7 @@ def add_note():
         conn = get_db()
         cur = conn.cursor()
 
-        query = f"INSERT INTO notes (user_id, note_info) VALUES ({session['user_id']}, '{note_txt}')"
+        query = f"INSERT INTO notes (user_id, note_info) VALUES ({session['user_id']}, '{note_txt}')" #insert user id and note info into notes table
         cur.execute(query)
         conn.commit()
         conn.close()
@@ -107,15 +109,15 @@ def add_note():
 
 @app.route("/notes", methods=["GET","POST"])
 def view():
-    if "user_id" not in session:
+    if "user_id" not in session: # check user in  or redirect to llogin
         return redirect("/login")
 
     conn = get_db()
     cur = conn.cursor()
 
-    query =f"SELECT * FROM notes WHERE user_id={session['user_id']}"
+    query =f"SELECT * FROM notes WHERE user_id={session['user_id']}" #select notes where user id = user id
     cur.execute(query)
-    notes = cur.fetchall()
+    notes = cur.fetchall() # get all
     conn.close()
     return render_template("notes.html",notes=notes)
 
@@ -127,7 +129,7 @@ def delete(id):
     conn = get_db()
     cur = conn.cursor()
 
-    query =f"DELETE FROM notes WHERE id={id}"
+    query =f"DELETE FROM notes WHERE id={id}" # delete notes where id = id
     cur.execute(query)
     conn.commit()
     conn.close()
@@ -138,7 +140,7 @@ def delete(id):
 
 if __name__ == "__main__":
     app.run(debug=True)
-
+# true lets stack trace be displayed 
 
 
 

@@ -17,6 +17,9 @@
         <br>
         <button type="submit">Submit</button>
     </form>
+
+    <p>{{ request.args.get('msg') |safe}}</p> <!--get msg value -->
+    
 </body>
 
 </html>
